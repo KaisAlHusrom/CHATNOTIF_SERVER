@@ -5,6 +5,7 @@ import com.WebSocket.ChatAppWithPostgres.Exceptions.ExceptionHandlerAdvice;
 import com.WebSocket.ChatAppWithPostgres.Exceptions.NotFoundException;
 import com.WebSocket.ChatAppWithPostgres.Model.Token.Token;
 import com.WebSocket.ChatAppWithPostgres.Model.Token.TokenType;
+import com.WebSocket.ChatAppWithPostgres.Model.User.ConnectStatus;
 import com.WebSocket.ChatAppWithPostgres.Model.User.Role;
 import com.WebSocket.ChatAppWithPostgres.Model.User.UserDTO;
 import com.WebSocket.ChatAppWithPostgres.Repository.TokenRepository;
@@ -36,6 +37,7 @@ public class AuthenticationService {
                     .userName(request.getUserName())
                     .email(request.getEmail())
                     .password(passwordEncoder.encode(request.getPassword()))
+                    .connectStatus(ConnectStatus.UNCONNECTED)
                     .role(Role.USER)
                     .build();
 
@@ -79,6 +81,8 @@ public class AuthenticationService {
             );
             //maybe will be error here
             var user = userRepo.findByUserName(request.getUserName()).orElseThrow(() -> new NotFoundException(request.getUserName()));
+            user.setConnectStatus(ConnectStatus.CONNECTED);
+            user = userRepo.save(user);
 
             revokeAllUserTokens(user);
 

@@ -37,6 +37,8 @@ public class User implements UserDetails {
     @JsonIgnore
     private String password;
 
+    private ConnectStatus connectStatus;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -144,4 +146,6 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
 }

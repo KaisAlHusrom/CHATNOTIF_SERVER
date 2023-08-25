@@ -1,7 +1,9 @@
 package com.WebSocket.ChatAppWithPostgres.Config;
 
 
+import com.WebSocket.ChatAppWithPostgres.Model.User.ConnectStatus;
 import com.WebSocket.ChatAppWithPostgres.Repository.TokenRepository;
+import com.WebSocket.ChatAppWithPostgres.Repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 public class LogoutService implements LogoutHandler {
 
     private final TokenRepository tokenRepository;
+    private final UserRepository userRepository;
     @Override
     public void logout(
             HttpServletRequest request,
@@ -29,10 +32,17 @@ public class LogoutService implements LogoutHandler {
         jwt = authHeader.substring(7);
 
         var storedToken = tokenRepository.findByToken(jwt).orElse(null);
+
         if(storedToken != null) {
             storedToken.setRevoked(true);
             storedToken.setExpired(true);
             tokenRepository.save(storedToken);
+        }
+
+        var user = userRepository.findByToken(jwt);
+        if (user != null) {
+            user.setConnectStatus(ConnectStatus.UNCONNECTED);
+            userRepository.save(user);
         }
     }
 }

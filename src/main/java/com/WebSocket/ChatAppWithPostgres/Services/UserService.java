@@ -31,6 +31,7 @@ public class UserService {
                     .updatedAt(user.getUpdatedAt())
                     .receivedRequests(user.getReceivedRequests())
                     .friends(friendDTOs)
+                    .connectStatus(user.getConnectStatus())
                     .build()
             );
         });
@@ -181,6 +182,7 @@ public class UserService {
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .receivedRequests(user.getReceivedRequests())
+                .connectStatus(user.getConnectStatus())
                 .build();
 
     }

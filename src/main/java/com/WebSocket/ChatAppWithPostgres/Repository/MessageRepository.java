@@ -9,7 +9,11 @@ import java.util.List;
 
 public interface MessageRepository extends JpaRepository<Message, Integer> {
     @Query("""
-    Select m from Message m where m.receiver.id = :senderId or m.sender.id = :senderId
+    Select m from Message m where\s
+        (m.receiver.id = :receiverId and m.sender.id = :senderId)
+        or\s
+        (m.receiver.id = :senderId and m.sender.id = :receiverId)
+
     """)
-    List<Message> findAllByUserId(Integer senderId);
+    List<Message> findAllByUserId(Integer senderId, Integer receiverId);
 }

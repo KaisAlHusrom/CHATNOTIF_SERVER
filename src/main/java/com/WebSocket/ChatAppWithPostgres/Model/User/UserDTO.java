@@ -23,4 +23,5 @@ public class UserDTO {
     private Role role;
     private List<UserDTO> friends;
     private List<FriendRequest> receivedRequests;
+    private ConnectStatus connectStatus;
 }

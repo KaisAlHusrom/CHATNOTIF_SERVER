@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 public class FriendRequestController {
-    private final FriendRequestService friendRequestService;
+
 
     @MessageMapping("/send-notif")
     @SendTo("/user-notification/send-notif")

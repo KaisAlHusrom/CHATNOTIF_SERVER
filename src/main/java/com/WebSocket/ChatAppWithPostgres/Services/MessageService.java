@@ -5,16 +5,22 @@ import com.WebSocket.ChatAppWithPostgres.Model.Message.Message;
 import com.WebSocket.ChatAppWithPostgres.Model.Message.MessageDTO;
 import com.WebSocket.ChatAppWithPostgres.Model.Message.MessageStatus;
 import com.WebSocket.ChatAppWithPostgres.Model.User.User;
+import com.WebSocket.ChatAppWithPostgres.Model.User.UserDTO;
 import com.WebSocket.ChatAppWithPostgres.Repository.MessageRepository;
 import com.WebSocket.ChatAppWithPostgres.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class MessageService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
     //Send Message
     public ApiResponse sendMessage(
             MessageDTO message,
@@ -83,9 +89,48 @@ public class MessageService {
         }
     }
 
-    public ApiResponse getUserMessages(Integer senderId) {
+    public ApiResponse getUserAllMessagesIntoHashMap(Integer userId) {
         try {
-            var messages = messageRepository.findAllByUserId(senderId);
+            var get_friends = userService.getFriends(userId);
+
+            List<UserDTO> friends = null;
+            Map<UserDTO, Object> friend_messages = new HashMap<>();
+
+            if (get_friends.isSuccess()) {
+                Object result = get_friends.getResult();
+
+                if (result instanceof List<?>) {
+                    friends = (List<UserDTO>) result;
+                    friends.forEach(friend -> {
+                        friend_messages.put(friend, this.getUserMessages(userId, friend.getId()).getResult());
+                    });
+                }
+
+                return ApiResponse.builder()
+                        .result(friend_messages)
+                        .message("Get Friends Messages Successfully")
+                        .error(null)
+                        .success(true)
+                        .build();
+            }
+            return ApiResponse.builder()
+                    .result(null)
+                    .message("Get Friends Messages Failed")
+                    .error("There is an error")
+                    .success(false)
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.builder()
+                    .result(null)
+                    .message("Get Friends Messages Failed")
+                    .error(e.getMessage())
+                    .success(false)
+                    .build();
+        }
+    }
+    public ApiResponse getUserMessages(Integer senderId, Integer receiverId) {
+        try {
+            var messages = messageRepository.findAllByUserId(senderId, receiverId);
 
             return ApiResponse.builder()
                     .success(true)

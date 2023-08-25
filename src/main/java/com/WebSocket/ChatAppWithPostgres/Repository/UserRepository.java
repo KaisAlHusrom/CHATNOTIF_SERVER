@@ -14,4 +14,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Select u from User u where u.userName LIKE %?1%
     """)
     public List<User> findAllByUserName(String userName);
+
+    @Query("""
+    select u from User u, Token t where u.id = t.user.id and t.token = :token
+    """)
+    public User findByToken(String token);
 }
