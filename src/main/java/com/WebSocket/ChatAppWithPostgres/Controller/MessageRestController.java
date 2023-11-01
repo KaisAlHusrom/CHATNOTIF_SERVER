@@ -27,6 +27,15 @@ public class MessageRestController {
         return ResponseEntity.ok(messageService.sendMessage(message, senderId, receiverId));
     }
 
+    @PostMapping("/send-old-message/{senderId}/{receiverId}")
+    public ResponseEntity<ApiResponse> sendOldMessage(
+            @RequestBody MessageDTO message,
+            @PathVariable Integer senderId,
+            @PathVariable Integer receiverId
+    ) {
+        return ResponseEntity.ok(messageService.sendOldMessage(message, senderId, receiverId));
+    }
+
     @PutMapping("/update-message-status-to-old/{messageId}")
     public ResponseEntity<ApiResponse> updateMessageStatusToOld(@PathVariable Integer messageId) {
         return ResponseEntity.ok(messageService.updateMessageStatusToOld(messageId));

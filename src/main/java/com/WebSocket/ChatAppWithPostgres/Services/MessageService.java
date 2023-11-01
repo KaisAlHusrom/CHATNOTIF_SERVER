@@ -64,6 +64,45 @@ public class MessageService {
         }
     }
 
+
+    //send message with old status
+    public ApiResponse sendOldMessage(MessageDTO message, Integer senderId, Integer receiverId) {
+        try {
+            var sender = userRepository.findById(senderId).orElseThrow(
+                    () -> new NotFoundException("There is no user with id: " + senderId)
+            );
+            var receiver = userRepository.findById(receiverId).orElseThrow(
+                    () -> new NotFoundException("There is no user with id: " + receiverId)
+            );
+
+            var messageEntity = Message.builder()
+                    .messageContent(message.getMessageContent())
+                    .sender(sender)
+                    .receiver(receiver)
+                    .status(MessageStatus.OLD)
+                    .build();
+
+            messageEntity.getSender().getSentMessages().add(messageEntity);
+            messageEntity.getReceiver().getReceivedMessages().add(messageEntity);
+
+            userRepository.save(messageEntity.getSender());
+            userRepository.save(messageEntity.getReceiver());
+            return ApiResponse.builder()
+                    .success(true)
+                    .error(null)
+                    .message("Message Sent Successfully")
+                    .result(messageRepository.save(messageEntity))
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.builder()
+                    .success(false)
+                    .error(e.getMessage())
+                    .message("Message didn't send")
+                    .result(null)
+                    .build();
+        }
+    }
+
     public ApiResponse updateMessageStatusToOld(Integer messageId) {
         try {
             var message = messageRepository.findById(messageId).orElseThrow(
@@ -94,16 +133,17 @@ public class MessageService {
             var get_friends = userService.getFriends(userId);
 
             List<UserDTO> friends = null;
-            Map<UserDTO, Object> friend_messages = new HashMap<>();
+            Map<String, Object> friend_messages = new HashMap<>();
 
             if (get_friends.isSuccess()) {
                 Object result = get_friends.getResult();
 
                 if (result instanceof List<?>) {
                     friends = (List<UserDTO>) result;
-                    friends.forEach(friend -> {
-                        friend_messages.put(friend, this.getUserMessages(userId, friend.getId()).getResult());
-                    });
+                    for(int i = 0; i < friends.toArray().length; i++) {
+                        var user = friends.get(i);
+                        friend_messages.put(user.getUserName(), this.getUserMessages(userId, user.getId()).getResult());
+                    }
                 }
 
                 return ApiResponse.builder()
@@ -147,4 +187,6 @@ public class MessageService {
                     .build();
         }
     }
+
+
 }

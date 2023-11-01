@@ -19,7 +19,7 @@ public class Message {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "message_content")
+    @Column(name = "message_content", length = 1000)
     private String messageContent;
 
     @Column(name = "created_at")

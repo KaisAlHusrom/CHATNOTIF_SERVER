@@ -29,4 +29,16 @@ public class MessageController {
         return apiResponse;
     }
 
+    @MessageMapping("/writing-message")
+    @SendTo("/user-message/writing-message")
+    public String writingMessage(@Payload String apiResponse) {
+        return apiResponse;
+    }
+
+    @MessageMapping("/check-reading-message")
+    @SendTo("/user-message/check-reading-message")
+    public String checkReadingMessage(@Payload String apiResponse) {
+        return apiResponse;
+    }
+
 }
